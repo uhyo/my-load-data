@@ -1,0 +1,6 @@
+yaml: file
+foo:
+  bar:
+    baz: 10000
+    hoge: true
+n: ~

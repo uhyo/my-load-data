@@ -42,9 +42,10 @@ export class Loader{
                         return Promise.resolve(target);
                     }
                     const pa = path.join(dir, f);
+                    const base = path.basename(f, path.extname(f));
                     return this.fromFile(pa).then(v=>{
                         if (v !== void 0){
-                            target[f] = v;
+                            target[base] = v;
                         }
                         return h(i+1);
                     });
