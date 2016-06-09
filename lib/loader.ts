@@ -70,12 +70,17 @@ export class Loader{
                     const ext = path.extname(pa);
                     const f = this.extTable[ext];
                     if ('function'===typeof f){
-                        resolve(f(pa));
+                        resolve(f(path.resolve(pa)));
                     }else{
                         resolve(void 0);
                     }
                 }
             });
         });
+    }
+
+    public addHandler(ext: string, func: (path: string)=>any): void{
+        ext = ext[0]==='.' ? ext : '.'+ext;
+        this.extTable[ext] = func;
     }
 }

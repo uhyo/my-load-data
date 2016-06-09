@@ -21,7 +21,9 @@
   },
   "keywords": [
     "load",
-    "data"
+    "data",
+    "json",
+    "yaml"
   ],
   "author": "uhyo",
   "license": "MIT",
