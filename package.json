@@ -1,0 +1,44 @@
+{
+  "name": "my-load-data",
+  "version": "1.0.0",
+  "description": "Loads data from directories.",
+  "main": "index.js",
+  "scripts": {
+    "build": "npm-run-all clean build:tsc lint",
+    "build:tsc": "tsc",
+    "clean": "del dist",
+    "lint": "find lib/ -name \"*.ts\" | xargs tslint --force",
+    "watch": "npm-run-all --parallel watch:*",
+    "watch:lint": "watch 'npm run lint' lib/ --wait=0.3 --verbose",
+    "watch:tsc": "tsc --watch",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/uhyo/my-load-data.git"
+  },
+  "keywords": [
+    "load",
+    "data"
+  ],
+  "author": "uhyo",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/uhyo/my-load-data/issues"
+  },
+  "homepage": "https://github.com/uhyo/my-load-data",
+  "devDependencies": {
+    "del": "^2.2.0",
+    "dtsm": "^1.1.0",
+    "in-publish": "^2.0.0",
+    "jasmine": "^2.4.1",
+    "npm-run-all": "^2.1.1",
+    "tslint": "^3.10.2",
+    "typescript": "^1.8.10",
+    "watch": "^0.18.0"
+  },
+  "dependencies": {
+    "es6-promise": "^3.2.1",
+    "js-yaml": "^3.6.1"
+  }
+}
