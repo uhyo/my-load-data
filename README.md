@@ -7,6 +7,8 @@ This is my module that loads files of a few format including JSON, YAML and plai
 ```
 
 ## Examples
+
+### Basic usage
 ```js
 const mld = require('my-load-data');
 
@@ -31,19 +33,30 @@ If ./data contains foo.json, bar.yaml and baz.js:
 mld.fromDirectory(['./data', './data1']).then(obj=>console.log(obj));
 ```
 
+### Loader
+You can instantiate `Loader`s instead of using the default Loader. `Loader`s can be customized through `addHandler` (see API below).
+
+```js
+const mld = require('my-load-data');
+
+const loader = new mld.Loader();
+
+loader.fromFile('./data/foo.json').then(obj=>console.log(obj));
+```
+
 ## API
 
-### mld.fromFile(path)
+### mld.fromFile(path) / loader.fromFile(path)
 - **Return value**: Promise&lt;any&gt;
 - **path**: string; Path to the file to load data from.
 
-### mld.fromDirectory(path)
+### mld.fromDirectory(path) / loader.fromDirectory(path)
 - **Return value**: Promise&lt;any&gt;
 - **path**: string | Array<string>; Path to the directory to load data from.
 
 If `path` is an Array, directories are visited sequentially. 
 
-### mld.addHandler(ext, handler)
+### loader.addHandler(ext, handler)
 - **ext**: string; Name of extension to add handler.
 - **handler**: (path: string)=&gt;any;
 
@@ -72,7 +85,7 @@ mld.fromDirectory('data').then(obj=>console.log(obj.hoge));
 - **js** file is loaded using `require`. js files can export Promises to make an asynchronous operation.
 
 ## Changelog
-- **v1.0.0**
+- **v1.0.0** (2016-06-10)
 
 ## License
 MIT
