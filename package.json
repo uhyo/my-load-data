@@ -9,6 +9,7 @@
     "build:tsc": "tsc",
     "clean": "del dist",
     "lint": "find lib/ test/ -name \"*.ts\" | xargs tslint --force",
+    "prepublish": "not-in-install && npm run build && npm run test || in-install",
     "test": "node run-jasmine.js || true",
     "watch": "npm-run-all --parallel watch:*",
     "watch:lint": "mkdirp lib/ test/ && watch 'npm run lint' lib/ test/ --wait=0.3 --verbose",
