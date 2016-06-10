@@ -3,7 +3,6 @@
   "version": "1.0.0-rc1",
   "description": "Loads data from directories for me.",
   "main": "dist/lib/index.js",
-  "typings": "dist/lib/index.d.ts",
   "scripts": {
     "build": "npm-run-all clean build:tsc lint",
     "build:tsc": "tsc",

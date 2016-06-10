@@ -6,8 +6,6 @@ This is my module that loads files of a few format including JSON, YAML and plai
  $ npm install my-load-data
 ```
 
-This module provides TypeScript support. TypeScript will automatically find typing information for this module.
-
 ## Examples
 ```js
 const mld = require('my-load-data');
