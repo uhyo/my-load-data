@@ -27,6 +27,20 @@ export class Loader{
         const result: any = {};
         if ('string'===typeof dir){
             return this.fromDirectory1(dir as string, result);
+        }else if (Array.isArray(dir)){
+            // 順番にディレクトリを処理
+            const h = (i: number)=>{
+                const d = dir[i];
+                if (d == null){
+                    return Promise.resolve(result);
+                }
+                return this.fromDirectory1(d, result).then(_=>{
+                    return h(i+1);
+                });
+            };
+            return h(0);
+        }else{
+            return Promise.reject(new Error('Invalid parameter'));
         }
     }
     private fromDirectory1(dir: string, target: any): Promise<any>{

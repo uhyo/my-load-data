@@ -5,6 +5,7 @@ import * as path from 'path';
 const pkg = require('pkg-dir').sync();
 const dataDir1 = path.join(pkg, 'test', 'data1');
 const dataDir2 = path.join(pkg, 'test', 'data2');
+const dataDir3 = path.join(pkg, 'test', 'data3');
 
 import {
     fromDirectory,
@@ -136,6 +137,37 @@ describe('fromDirectory', ()=>{
                 },
                 sub: {
                     file: 'Hi',
+                },
+            });
+            done();
+        }).catch(done.fail);
+    });
+    it('Multiple directories', (done)=>{
+        fromDirectory([dataDir1, dataDir3]).then(obj=>{
+            expect(obj).toEqual({
+                foo: {
+                    this: 'is from data3/foo.yaml',
+                },
+                bar: {
+                    yaml: 'file',
+                    foo: {
+                        bar: {
+                            baz: 10000,
+                            hoge: true,
+                        },
+                    },
+                    n: null,
+                },
+                baz: {
+                    java: 'script',
+                    sum: 10,
+                    foo: void 0,
+                },
+                sub: {
+                    file: 'Hi',
+                },
+                hoge: {
+                    file: 'hoge.json',
                 },
             });
             done();
