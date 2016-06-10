@@ -1,0 +1,11 @@
+.git/
+.gitignore
+node_modules/
+lib/
+test/
+typings/
+dist/test/
+dtsm.json
+run-jasmine.js
+tsconfig.json
+tslint.json
