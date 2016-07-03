@@ -1,6 +1,6 @@
 ///<reference path="../typings/bundle.d.ts" />
 
-import * as path from 'path';
+const path = require('path');
 
 const pkg = require('pkg-dir').sync();
 const dataDir1 = path.join(pkg, 'test', 'data1');
