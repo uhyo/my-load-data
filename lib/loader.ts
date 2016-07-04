@@ -18,6 +18,11 @@ interface NumberConstructor{
 
 export interface IOption{
     mtime?: boolean | string;
+    cache?: any;
+}
+interface IOption2{
+    mtime: string;
+    cache: any;
 }
 
 const DEFAULT_MTIME_FIELD = '$mtime';
@@ -36,9 +41,11 @@ export class Loader{
     }
 
     public fromDirectory(dir: string | Array<string>, options: IOption = {}): Promise<any>{
+        // default values for options
+        const options2 = this.readOptions(options);
         const result: any = {};
         if ('string'===typeof dir){
-            return this.fromDirectory1(dir as string, result, options);
+            return this.fromDirectory1(dir as string, result, options2, options2.cache);
         }else if (Array.isArray(dir)){
             // 順番にディレクトリを処理
             const h = (i: number)=>{
@@ -46,7 +53,7 @@ export class Loader{
                 if (d == null){
                     return Promise.resolve(result);
                 }
-                return this.fromDirectory1(d, result, options).then(_=>{
+                return this.fromDirectory1(d, result, options2, options2.cache).then(_=>{
                     return h(i+1);
                 });
             };
@@ -55,7 +62,7 @@ export class Loader{
             return Promise.reject(new Error('Invalid parameter'));
         }
     }
-    private fromDirectory1(dir: string, target: any, options: IOption = {}): Promise<any>{
+    private fromDirectory1(dir: string, target: any, options: IOption2, cache: any): Promise<any>{
         return new Promise((resolve, reject)=>{
             fs.readdir(dir, (err, files)=>{
                 if (err != null){
@@ -74,31 +81,26 @@ export class Loader{
                     }
                     const pa = path.join(dir, f);
                     const base = path.basename(f, path.extname(f));
-                    return this.fromFile(pa, options).then(v=>{
+                    return this.fromFile1(pa, options, cache && cache[base]).then(v=>{
                         if (v !== void 0){
                             target[base] = v;
                         }
                         // ディレクトリ中で最大のmtimeを調べている
                         if (options.mtime){
                             if (nisFinite(v[mtimef])){
+                                // 更新日時情報持ってる
                                 if (mtime < v[mtimef]){
                                     mtime = v[mtimef];
                                 }
+                                return h(i+1);
                             }else{
-                                // mtimeが欲しいのにないからファイルから調べる
-                                return (new Promise((resolve, reject)=>{
-                                    fs.stat(pa, (err, st)=>{
-                                        if (err != null){
-                                            reject(err);
-                                            return;
-                                        }
-                                        const mt = st.mtime.getTime();
-                                        if (mtime < mt){
-                                            mtime = mt;
-                                        }
-                                        resolve(h(i+1));
-                                    });
-                                }));
+                                // 無いから取得しないと
+                                return getMTime(pa).then(mt=>{
+                                    if (nisFinite(mt) && mtime < mt){
+                                        mtime = mt;
+                                    }
+                                    return h(i+1);
+                                });
                             }
                         }
                         return h(i+1);
@@ -109,46 +111,43 @@ export class Loader{
         });
     }
     public fromFile(pa: string, options: IOption = {}): Promise<any>{
-        return new Promise((resolve, reject)=>{
-            fs.stat(pa, (err, st)=>{
-                if (err != null){
-                    reject(err);
-                    return;
-                }
-                if (st.isDirectory()){
-                    // ちょーーーーこれディレクトリなんですけどーーーーーーーーーーー
-                    const obj: any = {};
-                    resolve(this.fromDirectory1(pa, obj, options));
-                    return;
-                }else{
-                    const ext = path.extname(pa);
-                    const f = this.extTable[ext];
-                    if ('function'===typeof f){
-                        const par = path.resolve(pa);
-                        const p = f(par);
-                        if (options.mtime){
-                            // mtimeが必要
-                            const mtimef = 'string' === typeof options.mtime ? (options.mtime as string) : DEFAULT_MTIME_FIELD;
-                            resolve(p.then(obj=>new Promise((resolve, reject)=>{
-                                fs.stat(par, (err, st)=>{
-                                    if (err != null){
-                                        reject(err);
-                                    }else{
-                                        if (obj != null && 'object'===typeof obj){
-                                            obj[mtimef] = st.mtime.getTime();
-                                        }
-                                        resolve(obj);
-                                    }
-                                });
-                            })));
-                        }else{
-                            resolve(p);
+        const options2 = this.readOptions(options);
+        return this.fromFile1(pa, options2, options2.cache);
+    }
+    private fromFile1(pa: string, options: IOption2, cache: any): Promise<any>{
+        // mtimeを取得
+        return getMTime(pa).then(fmtime=>{
+            if (fmtime===-1){
+                // ディレクトリだった
+                return this.fromDirectory1(pa, {}, options, cache);
+            }
+            // cacheを確認
+            const mtimef = 'string' === typeof options.mtime ? (options.mtime as string) : DEFAULT_MTIME_FIELD;
+            if (options.cache && cache && nisFinite(cache[mtimef]) && nisFinite(fmtime) && cache[mtimef] >= fmtime){
+                // cacheを利用可能
+                // TODO: deep cloning?
+                return cache;
+            }
+            // loaderを取得
+            const ext = path.extname(pa);
+            const f = this.extTable[ext];
+            if ('function'===typeof f){
+                const par = path.resolve(pa);
+                const p = f(par);
+                if (options.mtime){
+                    // mtimeが必要
+                    return p.then(obj=>{
+                        if (obj != null && 'object' === typeof obj){
+                            obj[mtimef] = fmtime;
                         }
-                    }else{
-                        resolve(void 0);
-                    }
+                        return obj;
+                    });
+                }else{
+                    return p;
                 }
-            });
+            }else{
+                return (void 0);
+            }
         });
     }
 
@@ -156,8 +155,51 @@ export class Loader{
         ext = ext[0]==='.' ? ext : '.'+ext;
         this.extTable[ext] = func;
     }
+
+    private readOptions(options: IOption): IOption2{
+        // set default values for options.
+        let {
+            mtime,
+            cache,
+        } = options;
+
+        if (cache === true || cache != null && 'object'===typeof cache){
+            // cache: trueはmtime: trueと同じ意味
+            mtime = true;
+            if (cache === true){
+                cache = void 0;
+            }
+        }
+        return {
+            // mtime: boolean or string.
+            mtime: mtime ? (options.mtime = 'string'===typeof mtime ? (mtime as string) : DEFAULT_MTIME_FIELD) : void 0,
+            // cache
+            cache: cache || void 0,
+        };
+    }
 }
 
+// some util functions
 function nisFinite(n: any): boolean{
     return (Number as any).isFinite(n);
+}
+// get mtime of file. null if (file was not found) or -1 if (it is directory).
+function getMTime(file: string): Promise<number>{
+    return new Promise((resolve, reject)=>{
+        fs.stat(file, (err, st)=>{
+            if (err != null){
+                if (err.code === 'ENOENT'){
+                    resolve(null);
+                }else{
+                    reject(err);
+                }
+                return;
+            }
+            if (st.isDirectory()){
+                resolve(-1);
+            }else{
+                resolve(st.mtime.getTime());
+            }
+        });
+    });
 }
