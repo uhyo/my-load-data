@@ -72,7 +72,7 @@ describe('fromFile', ()=>{
         it('Nonexistent file (js)', (done)=>{
             fromFile(path.join(dataDir2, 'ぴゃああああああ.js')).then(done.fail)
             .catch(err=>{
-                expect(err.code).toBe('ENOENT');
+                expect(err.code).toBe('MODULE_NOT_FOUND');
                 done();
             });
         });
