@@ -46,13 +46,18 @@ loader.fromFile('./data/foo.json').then(obj=>console.log(obj));
 
 ## API
 
-### mld.fromFile(path) / loader.fromFile(path[, options])
+### mld.fromFile(path[, options]) / loader.fromFile(path[, options])
 - **Return value**: Promise&lt;any&gt;
 - **path**: string; Path to the file to load data from.
+- **options**:
+  - **mtime**: boolean | string; If the value is truthy, mtime of the file is added to the result object. If the value is string, it is used as the field name. The default field name is `$mtime`.
+  - **cache**: Object; If this option is used, unchanged files (determined by mtime) is not loaded and its value is taken from cache. The cache should be the return value of previous call to fromFile with mtime enabled (When cache is used, mtime is automatically enabled).
+  - **nocacheFilter**: RegExp | Function; Filter function to temporally disable cache based on file names. If the function returns true, the file is newly loaded regardless of its time. 
 
-### mld.fromDirectory(path) / loader.fromDirectory(path[, options])
+### mld.fromDirectory(path[, options]) / loader.fromDirectory(path[, options])
 - **Return value**: Promise&lt;any&gt;
 - **path**: string | Array<string>; Path to the directory to load data from.
+- **options**: See above.
 
 If `path` is an Array, directories are visited sequentially. 
 
@@ -85,13 +90,14 @@ mld.fromDirectory('data').then(obj=>console.log(obj.hoge));
 - **js** file is loaded using `require`. js files can export Promises to make an asynchronous operation.
 
 ## Changelog
+- **v1.1.0** (2016-xx-xx) Add the `mtime`, `cache` and `nocacheFilter` option for me.
 - **v1.0.0** (2016-06-10)
 
 ## License
 MIT
 
 ## Contribution
-Following npm script is useful:
+Following npm scripts are useful:
 
 - `npm build`: build source files into `dist/`.
 - `npm watch`: watch changes in `lib/` and `test/`; on changes, compiling, linting and testing are triggered.
