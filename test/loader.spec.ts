@@ -323,6 +323,72 @@ describe('Loader', ()=>{
                 }).catch(done.fail);
             });
         });
+        describe('cacheFilter option', ()=>{
+            it('RegExp', done=>{
+                const f = '/data';
+                const cache = {
+                    foo: {
+                        'this cache': 'is very new',
+                        '$mtime': mtime.getTime()+7200000,
+                    },
+                    bar: {
+                        'this': 'is from cache',
+                        '$mtime': mtime.getTime()-3600000,
+                    },
+                    '$mtime': mtime.getTime()+7200000,
+                };
+                loader.fromDirectory(f, {
+                    cache,
+                    nocacheFilter: /foo\./,
+                }).then(obj=>{
+                    expect(obj).toEqual({
+                        foo: {
+                            'this': 'is mock file',
+                            'that': 'is my cat',
+                            '$mtime': mtime.getTime(),
+                        },
+                        bar: {
+                            'this': 'is from cache',
+                            '$mtime': mtime.getTime()-3600000,
+                        },
+                        '$mtime': mtime.getTime(),
+                    });
+                    done();
+                }).catch(done.fail);
+            });
+            it('Function', done=>{
+                const f = '/data';
+                const cache = {
+                    foo: {
+                        'this cache': 'is very new',
+                        '$mtime': mtime.getTime()+7200000,
+                    },
+                    bar: {
+                        'this': 'is from cache',
+                        '$mtime': mtime.getTime()-3600000,
+                    },
+                    '$mtime': mtime.getTime()+7200000,
+                };
+                loader.fromDirectory(f, {
+                    cache,
+                    nocacheFilter: (filename)=> path.extname(filename)==='.json',
+                }).then(obj=>{
+                    expect(obj).toEqual({
+                        foo: {
+                            'this': 'is mock file',
+                            'that': 'is my cat',
+                            '$mtime': mtime.getTime(),
+                        },
+                        bar: {
+                            'this': 'is from cache',
+                            '$mtime': mtime.getTime()-3600000,
+                        },
+                        '$mtime': mtime.getTime(),
+                    });
+                    done();
+                }).catch(done.fail);
+            });
+        });
     });
 });
 

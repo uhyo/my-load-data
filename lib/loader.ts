@@ -19,10 +19,12 @@ interface NumberConstructor{
 export interface IOption{
     mtime?: boolean | string;
     cache?: any;
+    nocacheFilter?: RegExp | ((file: string)=>boolean);
 }
 interface IOption2{
     mtime: string;
     cache: any;
+    nocacheFilter: (file: string)=>boolean;
 }
 
 const DEFAULT_MTIME_FIELD = '$mtime';
@@ -123,7 +125,7 @@ export class Loader{
             }
             // cacheを確認
             const mtimef = 'string' === typeof options.mtime ? (options.mtime as string) : DEFAULT_MTIME_FIELD;
-            if (options.cache && cache && nisFinite(cache[mtimef]) && nisFinite(fmtime) && cache[mtimef] >= fmtime){
+            if (options.cache && cache && !options.nocacheFilter(pa) && nisFinite(cache[mtimef]) && nisFinite(fmtime) && cache[mtimef] >= fmtime){
                 // cacheを利用可能
                 // TODO: deep cloning?
                 return cache;
@@ -161,6 +163,7 @@ export class Loader{
         let {
             mtime,
             cache,
+            nocacheFilter,
         } = options;
 
         if (cache === true || cache != null && 'object'===typeof cache){
@@ -170,11 +173,21 @@ export class Loader{
                 cache = void 0;
             }
         }
+        let nocacheFilterFunc: (filename: string)=>boolean;
+        if (nocacheFilter instanceof RegExp){
+            nocacheFilterFunc = (filename: string)=> nocacheFilter.test(filename);
+        }else if ('function' === typeof nocacheFilter){
+            nocacheFilterFunc = nocacheFilter;
+        }else{
+            nocacheFilterFunc = ()=>false;
+        }
         return {
             // mtime: boolean or string.
             mtime: mtime ? (options.mtime = 'string'===typeof mtime ? (mtime as string) : DEFAULT_MTIME_FIELD) : void 0,
             // cache
             cache: cache || void 0,
+            // default filter is all passing
+            nocacheFilter: nocacheFilterFunc,
         };
     }
 }
