@@ -1,5 +1,5 @@
 # my-load-data
-This is my module that loads files of a few format including JSON, YAML and plain JS.
+This is my module that loads files of a few format including JSON, YAML and plain JS for me.
 
 ## installation
 ```sh
@@ -46,11 +46,11 @@ loader.fromFile('./data/foo.json').then(obj=>console.log(obj));
 
 ## API
 
-### mld.fromFile(path) / loader.fromFile(path)
+### mld.fromFile(path) / loader.fromFile(path[, options])
 - **Return value**: Promise&lt;any&gt;
 - **path**: string; Path to the file to load data from.
 
-### mld.fromDirectory(path) / loader.fromDirectory(path)
+### mld.fromDirectory(path) / loader.fromDirectory(path[, options])
 - **Return value**: Promise&lt;any&gt;
 - **path**: string | Array<string>; Path to the directory to load data from.
 
