@@ -89,7 +89,7 @@ export class Loader{
                         }
                         // ディレクトリ中で最大のmtimeを調べている
                         if (options.mtime){
-                            if (nisFinite(v[mtimef])){
+                            if (v != null && nisFinite(v[mtimef])){
                                 // 更新日時情報持ってる
                                 if (mtime < v[mtimef]){
                                     mtime = v[mtimef];
