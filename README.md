@@ -90,7 +90,7 @@ mld.fromDirectory('data').then(obj=>console.log(obj.hoge));
 - **js** file is loaded using `require`. js files can export Promises to make an asynchronous operation.
 
 ## Changelog
-- **v1.1.0** (2016-xx-xx) Add the `mtime`, `cache` and `nocacheFilter` option for me.
+- **v1.1.0** (2017-06-02) Add the `mtime`, `cache` and `nocacheFilter` option for me.
 - **v1.0.0** (2016-06-10)
 
 ## License
