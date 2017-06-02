@@ -1,6 +1,6 @@
 {
   "name": "my-load-data",
-  "version": "1.1.0-rc1",
+  "version": "1.1.0",
   "description": "Loads data from directories for me.",
   "main": "dist/lib/index.js",
   "scripts": {

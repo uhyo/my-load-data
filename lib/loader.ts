@@ -175,7 +175,7 @@ export class Loader{
         }
         let nocacheFilterFunc: (filename: string)=>boolean;
         if (nocacheFilter instanceof RegExp){
-            nocacheFilterFunc = (filename: string)=> nocacheFilter.test(filename);
+            nocacheFilterFunc = (filename: string)=> (nocacheFilter as RegExp).test(filename);
         }else if ('function' === typeof nocacheFilter){
             nocacheFilterFunc = nocacheFilter;
         }else{
